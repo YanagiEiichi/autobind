@@ -59,8 +59,9 @@ var autobind = function(base, name, desc) {
   if(typeof base === 'function' && name === void 0 && desc === void 0) {
     var prototype = base.prototype;
     Object.getOwnPropertyNames(prototype).forEach(function(name) {
-      if(name === 'constructor' || typeof prototype[name] !== 'function') return;
+      if(name === 'constructor') return;
       var desc = Object.getOwnPropertyDescriptor(prototype, name);
+      if(typeof desc.value !== 'function') return;
       bindMethod(prototype, name, desc);
       Object.defineProperty(prototype, name, desc);
     });
