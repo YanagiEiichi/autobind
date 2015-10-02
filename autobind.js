@@ -23,11 +23,12 @@ var umd = function(autobind) {
 var bindMethod = function(base, name, desc) {
   var get = desc.get;
   var value = desc.value;
+  var writable = desc.writable;
   // For value property
   if(typeof value === 'function') {
     // Remove value description
-    delete desc.value;
     delete desc.writable;
+    delete desc.value;
     // Replace to a getter function
     desc.get = function() {
       if(this === base) return value;
@@ -36,20 +37,22 @@ var bindMethod = function(base, name, desc) {
       Object.defineProperty(this, name, {
         value: boundValue,
         enumerable: desc.enumerable,
-        writable: desc.writable,
+        writable: writable,
         configurable: desc.configurable
       });
       return boundValue;
     };
-    // Add a setter to avoid throw on assignment
-    desc.set = function(value) {
-      Object.defineProperty(this, name, {
-        value: value,
-        enumerable: true,
-        writable: true,
-        configurable: true
-      });
-    };
+    // Add a setter to avoid throw on assignment if writable
+    if(writable) {
+      desc.set = function(value) {
+        Object.defineProperty(this, name, {
+          value: value,
+          enumerable: desc.enumerable,
+          writable: writable,
+          configurable: desc.configurable
+        });
+      };
+    }
   }
   return desc;
 };
