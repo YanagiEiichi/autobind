@@ -31,7 +31,9 @@ var bindMethod = function(base, name, desc) {
     delete desc.value;
     // Replace to a getter function
     desc.get = function() {
-      if(this === base) return value;
+      // The method must be bindable, If an autobinded method called on prototype,
+      // Consider the static method has no prototype, so check the type to exclude static method
+      if(this === base && typeof base !== 'function') return value;
       var boundValue = value.bind(this);
       // Save result to itself as a cache
       Object.defineProperty(this, name, {
